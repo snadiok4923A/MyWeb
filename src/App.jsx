@@ -62,176 +62,477 @@ const ParticleNetwork = () => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-    let particles = [];
-    const NUM_PARTICLES = 90; // Optimal number for forming recognizable shapes
-    let currentShape = 0;
-    let shapeInterval;
-    let rect = canvas.getBoundingClientRect();
+    if (!canvas) return;
 
-    const resizeCanvas = () => {
-      const dpr = window.devicePixelRatio || 1;
-      rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-      updateTargets();
+    const ctx = canvas.getContext('2d');
+
+    let animationFrameId;
+    let shapeInterval;
+    let particles = [];
+    let width = 0;
+    let height = 0;
+
+    // --------------------------------------------------
+    // CONFIG
+    // --------------------------------------------------
+
+    const NUM_PARTICLES = 70;
+    const MORPH_DURATION = 5000;
+    const CONNECTION_DISTANCE = 125;
+
+    let currentShape = 0;
+
+    const shapes = [
+      'infinity',
+      'circle',
+      'organic',
+      'random'
+    ];
+
+    // --------------------------------------------------
+    // RESIZE
+    // --------------------------------------------------
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+
+      width = rect.width;
+      height = rect.height;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
-    // Calculate target positions for the current shape
-    const getTargets = (shape, w, h) => {
-      const targets = [];
-      const cx = w / 2;
-      const cy = h / 2;
-      const minDim = Math.min(w, h);
+    // --------------------------------------------------
+    // TARGET GENERATION
+    // --------------------------------------------------
 
-      for (let i = 0; i < NUM_PARTICLES; i++) {
-        let tx, ty;
-        
-        if (shape === 0) {
-          // 1. Ring Shape (like image_278d8b)
-          const angle = (i / NUM_PARTICLES) * Math.PI * 2;
-          const r = minDim * 0.35 + (Math.random() * 40 - 20); // Thick ring
-          tx = cx + Math.cos(angle) * r;
-          ty = cy + Math.sin(angle) * r;
-          
-        } else if (shape === 1) {
-          // 2. Grid Shape (like image_278d28)
-          const cols = Math.ceil(Math.sqrt(NUM_PARTICLES));
-          const spacing = minDim * 0.5 / cols;
-          const row = Math.floor(i / cols);
-          const col = i % cols;
-          const offsetX = cx - ((cols - 1) * spacing) / 2;
-          const offsetY = cy - ((cols - 1) * spacing) / 2;
-          // Add slight noise to grid so it feels alive
-          tx = offsetX + col * spacing + (Math.random() * 10 - 5);
-          ty = offsetY + row * spacing + (Math.random() * 10 - 5);
-          
-        } else if (shape === 2) {
-          // 3. Cluster/Blob Shape (like image_278d2e)
-          const r = Math.random() * minDim * 0.15;
-          const angle = Math.random() * Math.PI * 2;
-          tx = cx + Math.cos(angle) * r;
-          ty = cy + Math.sin(angle) * r;
-          
-        } else {
-          // 4. Scattered Shape (like image_278a2a)
-          tx = Math.random() * w;
-          ty = Math.random() * h;
+    const generateTargets = (shape) => {
+      const targets = [];
+
+      const cx = width / 2;
+      const cy = height / 2;
+
+      const minDim = Math.min(width, height);
+
+      // ----------------------------------------------
+      // INFINITY / LOOP
+      // ----------------------------------------------
+
+      if (shape === 'infinity') {
+        const scale = minDim * 0.42;
+
+        for (let i = 0; i < NUM_PARTICLES; i++) {
+          const t = (i / NUM_PARTICLES) * Math.PI * 2;
+
+          const wobble =
+            Math.sin(t * 3.0) * minDim * 0.008;
+
+          const x =
+            cx +
+            Math.cos(t) *
+              scale *
+              0.95;
+
+          const y =
+            cy +
+            Math.sin(t * 2) *
+              scale *
+              0.38 +
+            wobble;
+
+          targets.push({
+            x,
+            y
+          });
         }
-        
-        targets.push({ tx, ty });
       }
+
+      // ----------------------------------------------
+      // CIRCLE
+      // ----------------------------------------------
+
+      else if (shape === 'circle') {
+        const radius = minDim * 0.34;
+
+        for (let i = 0; i < NUM_PARTICLES; i++) {
+          const angle =
+            (i / NUM_PARTICLES) *
+            Math.PI *
+            2;
+
+          const radiusVariation =
+            Math.sin(i * 1.7) * 8 +
+            Math.cos(i * 0.8) * 5;
+
+          targets.push({
+            x:
+              cx +
+              Math.cos(angle) *
+                (radius + radiusVariation),
+
+            y:
+              cy +
+              Math.sin(angle) *
+                (radius + radiusVariation)
+          });
+        }
+      }
+
+      // ----------------------------------------------
+      // ORGANIC BLOB
+      // ----------------------------------------------
+
+      else if (shape === 'organic') {
+        for (let i = 0; i < NUM_PARTICLES; i++) {
+          const angle =
+            (i / NUM_PARTICLES) *
+            Math.PI *
+            2;
+
+          const wave =
+            Math.sin(angle * 3) * 20 +
+            Math.cos(angle * 5) * 12;
+
+          const radius =
+            minDim * 0.24 +
+            wave;
+
+          targets.push({
+            x:
+              cx +
+              Math.cos(angle) *
+                radius,
+
+            y:
+              cy +
+              Math.sin(angle) *
+                radius *
+                0.75
+          });
+        }
+      }
+
+      // ----------------------------------------------
+      // RANDOM / SCATTER
+      // ----------------------------------------------
+
+      else {
+        for (let i = 0; i < NUM_PARTICLES; i++) {
+          targets.push({
+            x:
+              width * 0.15 +
+              Math.random() *
+                width * 0.7,
+
+            y:
+              height * 0.2 +
+              Math.random() *
+                height * 0.6
+          });
+        }
+      }
+
       return targets;
     };
+
+    // --------------------------------------------------
+    // PARTICLE
+    // --------------------------------------------------
 
     class Particle {
       constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.tx = x;
-        this.ty = y;
-        this.radius = Math.random() * 1.5 + 0.8;
-        this.angle = Math.random() * Math.PI * 2;
-        this.speed = Math.random() * 0.02 + 0.005;
+
+        this.targetX = x;
+        this.targetY = y;
+
+        this.baseX = x;
+        this.baseY = y;
+
+        this.radius =
+          Math.random() * 1.5 + 1;
+
+        this.phase =
+          Math.random() *
+          Math.PI *
+          2;
+
+        this.speed =
+          Math.random() * 0.008 +
+          0.003;
+
+        this.floatAmount =
+          Math.random() * 0.7 +
+          0.3;
       }
 
-      update() {
-        // Easing towards the target shape position
-        this.x += (this.tx - this.x) * 0.03;
-        this.y += (this.ty - this.y) * 0.03;
+      update(time) {
+        // --------------------------------------------
+        // SMOOTH MORPH
+        // --------------------------------------------
 
-        // Add an organic, continuous floating motion
-        this.angle += this.speed;
-        this.x += Math.cos(this.angle) * 0.4;
-        this.y += Math.sin(this.angle) * 0.4;
+        const dx =
+          this.targetX - this.x;
+
+        const dy =
+          this.targetY - this.y;
+
+        this.x += dx * 0.025;
+        this.y += dy * 0.025;
+
+        // --------------------------------------------
+        // ORGANIC FLOATING
+        // --------------------------------------------
+
+        this.phase += this.speed;
+
+        this.x +=
+          Math.cos(
+            this.phase + time * 0.00015
+          ) *
+          this.floatAmount;
+
+        this.y +=
+          Math.sin(
+            this.phase * 1.15 +
+            time * 0.00012
+          ) *
+          this.floatAmount;
       }
 
-      draw(ctx) {
+      draw() {
+        // Small soft glow
+
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff'; // Pure white nodes
+
+        ctx.arc(
+          this.x,
+          this.y,
+          this.radius,
+          0,
+          Math.PI * 2
+        );
+
+        ctx.fillStyle =
+          'rgba(255,255,255,0.95)';
+
         ctx.fill();
       }
     }
 
-    const updateTargets = () => {
-      if (rect.width === 0) return;
-      const targets = getTargets(currentShape, rect.width, rect.height);
-      particles.forEach((p, i) => {
-        p.tx = targets[i].tx;
-        p.ty = targets[i].ty;
-      });
-    };
+    // --------------------------------------------------
+    // INITIALIZE
+    // --------------------------------------------------
 
-    const init = () => {
-      resizeCanvas();
+    const initialize = () => {
+      resize();
+
       particles = [];
-      
-      // Start in a scattered position
-      const initialTargets = getTargets(3, rect.width, rect.height); 
-      for (let i = 0; i < NUM_PARTICLES; i++) {
-        // Initialize at target so they don't all fly in from corner
-        particles.push(new Particle(initialTargets[i].tx, initialTargets[i].ty));
-      }
-      updateTargets();
 
-      // Loop the shape morphing every 4.5 seconds
-      shapeInterval = setInterval(() => {
-        currentShape = (currentShape + 1) % 4;
-        updateTargets();
-      }, 4500); 
+      const targets =
+        generateTargets(
+          shapes[currentShape]
+        );
+
+      for (
+        let i = 0;
+        i < NUM_PARTICLES;
+        i++
+      ) {
+        const p = new Particle(
+          targets[i].x,
+          targets[i].y
+        );
+
+        p.targetX = targets[i].x;
+        p.targetY = targets[i].y;
+
+        particles.push(p);
+      }
     };
 
-    const animate = () => {
-      ctx.clearRect(0, 0, rect.width, rect.height);
+    // --------------------------------------------------
+    // CHANGE SHAPE
+    // --------------------------------------------------
 
-      particles.forEach(p => {
-        p.update();
-        p.draw(ctx);
+    const changeShape = () => {
+      currentShape =
+        (currentShape + 1) %
+        shapes.length;
+
+      const targets =
+        generateTargets(
+          shapes[currentShape]
+        );
+
+      particles.forEach((particle, i) => {
+        particle.targetX =
+          targets[i].x;
+
+        particle.targetY =
+          targets[i].y;
       });
+    };
 
-      // Draw dynamic connections based on distance
-      const maxDist = Math.min(rect.width, rect.height) * 0.12;
-      
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+    // --------------------------------------------------
+    // DRAW CONNECTIONS
+    // --------------------------------------------------
 
-          if (distance < maxDist) {
+    const drawConnections = () => {
+      for (
+        let i = 0;
+        i < particles.length;
+        i++
+      ) {
+        for (
+          let j = i + 1;
+          j < particles.length;
+          j++
+        ) {
+          const p1 = particles[i];
+          const p2 = particles[j];
+
+          const dx =
+            p1.x - p2.x;
+
+          const dy =
+            p1.y - p2.y;
+
+          const distance =
+            Math.sqrt(
+              dx * dx +
+              dy * dy
+            );
+
+          if (
+            distance <
+            CONNECTION_DISTANCE
+          ) {
+            const opacity =
+              1 -
+              distance /
+                CONNECTION_DISTANCE;
+
             ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            
-            // Fade lines out as they reach max distance
-            const opacity = 1 - (distance / maxDist);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.25})`;
-            ctx.lineWidth = 0.6;
+
+            ctx.moveTo(
+              p1.x,
+              p1.y
+            );
+
+            ctx.lineTo(
+              p2.x,
+              p2.y
+            );
+
+            ctx.strokeStyle =
+              `rgba(190,210,255,${
+                opacity * 0.32
+              })`;
+
+            ctx.lineWidth =
+              0.55;
+
             ctx.stroke();
           }
         }
       }
-
-      animationFrameId = requestAnimationFrame(animate);
     };
 
-    init();
-    animate();
+    // --------------------------------------------------
+    // ANIMATION LOOP
+    // --------------------------------------------------
 
-    window.addEventListener('resize', resizeCanvas);
+    const animate = (time) => {
+      ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+      );
+
+      // Update particles
+
+      particles.forEach(
+        particle =>
+          particle.update(time)
+      );
+
+      // Connections first
+
+      drawConnections();
+
+      // Nodes
+
+      particles.forEach(
+        particle =>
+          particle.draw()
+      );
+
+      animationFrameId =
+        requestAnimationFrame(
+          animate
+        );
+    };
+
+    // --------------------------------------------------
+    // START
+    // --------------------------------------------------
+
+    initialize();
+
+    window.addEventListener(
+      'resize',
+      resize
+    );
+
+    shapeInterval =
+      setInterval(
+        changeShape,
+        MORPH_DURATION
+      );
+
+    animationFrameId =
+      requestAnimationFrame(
+        animate
+      );
+
+    // --------------------------------------------------
+    // CLEANUP
+    // --------------------------------------------------
+
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      cancelAnimationFrame(animationFrameId);
-      clearInterval(shapeInterval);
+      window.removeEventListener(
+        'resize',
+        resize
+      );
+
+      clearInterval(
+        shapeInterval
+      );
+
+      cancelAnimationFrame(
+        animationFrameId
+      );
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="w-full h-full opacity-80 mix-blend-screen" />;
+  return (
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="absolute inset-0 rounded-full bg-white/[0.025] blur-3xl pointer-events-none" />
+
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full opacity-90 mix-blend-screen"
+      />
+    </div>
+  );
 };
 
 const ProjectCard = ({ site, index, onClick }) => {
