@@ -2,6 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, ArrowLeft, ArrowUpRight, X } from 'lucide-react';
 
 const websitesData = [
+    {
+  id: 'anantachitra',
+  name: 'Anantachitra',
+  shortDesc: 'Cinematic wallpaper collection with immersive 3D visuals.',
+  url: 'https://snadiok4923a.github.io/ANANTACHITRA/',
+  description: `Anantachitra is an interactive wallpaper exploration platform that combines a large visual collection with immersive 3D animations.
+
+The website features a Three.js-powered particle background, responsive masonry gallery, wallpaper search, category filtering, fullscreen image viewing, and direct downloads.
+
+It is designed to make wallpaper discovery feel more like exploring a visual experience than browsing a traditional image gallery.`,
+  features: ['3D Experience', 'Interactive', 'Gallery']
+},
   {
     id: 'thoughtflow',
     name: 'ThoughtFlow',
@@ -30,7 +42,7 @@ const websitesData = [
       'Deleting Nodes', 'Undo and Redo', 'Importing and Exporting Mind Maps',
       'Working With Other Files', '3 click on a node is going to delete it'
     ]
-  },
+    },
   {
     id: 'aatmikx',
     name: 'AatmikX',
@@ -54,7 +66,9 @@ const websitesData = [
     url: 'https://snadiok4923a.github.io/SPACE/',
     description: `SoundSpace is an interactive music exploration website that presents music as a visual universe of galaxies, genres, and songs.\n\nInstead of presenting music only as a traditional list, users can explore relationships between genres and tracks through an interactive musical universe.\n\nIt is designed for music discovery and visual exploration.`,
     features: ['Discovery', 'Interactive']
-  }
+  },
+
+  
 ];
 
 const ParticleNetwork = () => {
