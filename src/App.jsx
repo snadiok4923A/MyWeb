@@ -35,7 +35,7 @@ It is designed to make wallpaper discovery feel more like exploring a visual exp
       { key: 'Shift + Drag', action: 'Select nodes' }
     ],
     manual: [
-      'Creating a Mind Map', 'Creating New Nodes', 'Building Branches',
+      'Creating a Mind Map', 'Creating New Nodes By Pressing + on Node', 'Move The Nodes For Adjustment',
       'Selecting Nodes', 'Moving Nodes', 'Writing Detailed Notes',
       'Formatting Notes', 'Adding Images', 'Read Mode',
       'Resizing Inspector', 'Organizing Node Layout', 'Collapsing Branches',
