@@ -1,26 +1,48 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, ArrowLeft, ArrowUpRight, X } from 'lucide-react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  memo,
+  useCallback,
+} from 'react';
+
+import {
+  ArrowRight,
+  ArrowLeft,
+  ArrowUpRight,
+  X,
+} from 'lucide-react';
+
+/* =========================================================
+   PROJECT DATA
+========================================================= */
 
 const websitesData = [
-    {
-  id: 'anantachitra',
-  name: 'Anantachitra',
-  shortDesc: 'Cinematic wallpaper collection with immersive 3D visuals.',
-  url: 'https://snadiok4923a.github.io/ANANTACHITRA/',
-  description: `Anantachitra is an interactive wallpaper exploration platform that combines a large visual collection with immersive 3D animations.
+  {
+    id: 'anantachitra',
+    name: 'Anantachitra',
+    shortDesc:
+      'Cinematic wallpaper collection with immersive 3D visuals.',
+    url: 'https://snadiok4923a.github.io/ANANTACHITRA/',
+    description: `Anantachitra is an interactive wallpaper exploration platform that combines a large visual collection with immersive 3D animations.
 
 The website features a Three.js-powered particle background, responsive masonry gallery, wallpaper search, category filtering, fullscreen image viewing, and direct downloads.
 
 It is designed to make wallpaper discovery feel more like exploring a visual experience than browsing a traditional image gallery.`,
-  features: ['3D Experience', 'Interactive', 'Gallery']
-},
+    features: ['3D Experience', 'Interactive', 'Gallery'],
+  },
+
   {
     id: 'thoughtflow',
     name: 'ThoughtFlow',
-    shortDesc: 'A visual thinking and mind-mapping workspace.',
+    shortDesc:
+      'A visual thinking and mind-mapping workspace.',
     url: 'https://snadiok4923a.github.io/Thought_Flow/',
-    description: `ThoughtFlow is a visual thinking and mind-mapping workspace for organizing ideas, thoughts, knowledge, studies, plans, and projects in a clear and structured way.\n\nIt allows users to connect related ideas visually instead of keeping information scattered across separate notes.`,
+    description: `ThoughtFlow is a visual thinking and mind-mapping workspace for organizing ideas, thoughts, knowledge, studies, plans, and projects in a clear and structured way.
+
+It allows users to connect related ideas visually instead of keeping information scattered across separate notes.`,
     features: ['Shortcuts', 'User Manual'],
+
     shortcuts: [
       { key: 'Ctrl + Z', action: 'Undo last Mind Map action' },
       { key: 'Ctrl + Shift + Z', action: 'Redo last Mind Map action' },
@@ -32,80 +54,139 @@ It is designed to make wallpaper discovery feel more like exploring a visual exp
       { key: 'Alt + +', action: 'Zoom In Mind Map' },
       { key: 'Alt + -', action: 'Zoom Out' },
       { key: 'Alt + 0', action: 'Reset file-content zoom' },
-      { key: 'Shift + Drag', action: 'Select nodes' }
+      { key: 'Shift + Drag', action: 'Select nodes' },
     ],
+
     manual: [
-      'Creating a Mind Map', 'Creating New Nodes By Pressing + on Node', 'Move The Nodes For Adjustment',
-      'Selecting Nodes', 'Moving Nodes', 'Writing Detailed Notes',
-      'Formatting Notes', 'Adding Images', 'Read Mode',
-      'Resizing Inspector', 'Organizing Node Layout', 'Collapsing Branches',
-      'Deleting Nodes', 'Undo and Redo', 'Importing and Exporting Mind Maps',
-      'Working With Other Files', '3 click on a node is going to delete it'
-    ]
-    },
+      'Creating a Mind Map',
+      'Creating New Nodes By Pressing + on Node',
+      'Move The Nodes For Adjustment',
+      'Selecting Nodes',
+      'Moving Nodes',
+      'Writing Detailed Notes',
+      'Formatting Notes',
+      'Adding Images',
+      'Read Mode',
+      'Resizing Inspector',
+      'Organizing Node Layout',
+      'Collapsing Branches',
+      'Deleting Nodes',
+      'Undo and Redo',
+      'Importing and Exporting Mind Maps',
+      'Working With Other Files',
+      '3 click on a node is going to delete it',
+    ],
+  },
+
   {
     id: 'aatmikx',
     name: 'AatmikX',
-    shortDesc: 'Personal portfolio showcasing skills and creative work.',
+    shortDesc:
+      'Personal portfolio showcasing skills and creative work.',
     url: 'https://snadiok4923a.github.io/AatmikX/',
-    description: `AatmikX is a personal portfolio website created to showcase Sandipan Paul's skills, creative work, projects, and professional identity.\n\nIt brings together work related to:\n• UI/UX Design\n• Game Development\n• Web Development\n• Music Production\n• Content Creation\n• Information Technology\n\nVisitors can explore skills, projects, creative work, music and gaming work, and professional opportunities/collaboration.`,
-    features: ['Portfolio']
+    description: `AatmikX is a personal portfolio website created to showcase Sandipan Paul's skills, creative work, projects, and professional identity.
+
+It brings together work related to:
+• UI/UX Design
+• Game Development
+• Web Development
+• Music Production
+• Content Creation
+• Information Technology
+
+Visitors can explore skills, projects, creative work, music and gaming work, and professional opportunities/collaboration.`,
+    features: ['Portfolio'],
   },
+
   {
     id: 'aaxmusic',
     name: 'AAX Music',
-    shortDesc: 'Modern music platform for experiencing original sounds.',
+    shortDesc:
+      'Modern music platform for experiencing original sounds.',
     url: 'https://snadiok4923a.github.io/AAX-Music/',
-    description: `AAX Music is a personal music platform created around original music and a dedicated listening experience.\n\nVisitors can explore music, playlists, different sound/vibes, and enter the Nexus Player for an immersive listening experience.\n\nIt is designed as a modern music platform for experiencing and discovering music.`,
-    features: ['Music', 'Nexus Player']
+    description: `AAX Music is a personal music platform created around original music and a dedicated listening experience.
+
+Visitors can explore music, playlists, different sound/vibes, and enter the Nexus Player for an immersive listening experience.
+
+It is designed as a modern music platform for experiencing and discovering music.`,
+    features: ['Music', 'Nexus Player'],
   },
+
   {
     id: 'soundspace',
     name: 'SoundSpace',
-    shortDesc: 'Interactive music exploration and visual universe.',
+    shortDesc:
+      'Interactive music exploration and visual universe.',
     url: 'https://snadiok4923a.github.io/SPACE/',
-    description: `SoundSpace is an interactive music exploration website that presents music as a visual universe of galaxies, genres, and songs.\n\nInstead of presenting music only as a traditional list, users can explore relationships between genres and tracks through an interactive musical universe.\n\nIt is designed for music discovery and visual exploration.`,
-    features: ['Discovery', 'Interactive']
-  },
+    description: `SoundSpace is an interactive music exploration website that presents music as a visual universe of galaxies, genres, and songs.
 
-  
+Instead of presenting music only as a traditional list, users can explore relationships between genres and tracks through an interactive musical universe.
+
+It is designed for music discovery and visual exploration.`,
+    features: ['Discovery', 'Interactive'],
+  },
 ];
 
-const ParticleNetwork = () => {
+
+/* =========================================================
+   PARTICLE NETWORK
+   Highly optimized Canvas animation
+========================================================= */
+
+const ParticleNetwork = memo(() => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', {
+      alpha: true,
+      desynchronized: true,
+    });
 
-    let animationFrameId;
-    let shapeInterval;
-    let particles = [];
+    if (!ctx) return;
+
+    let animationFrameId = 0;
+    let shapeIntervalId = 0;
+
     let width = 0;
     let height = 0;
 
-    // --------------------------------------------------
-    // CONFIG
-    // --------------------------------------------------
-
-    const NUM_PARTICLES = 70;
-    const MORPH_DURATION = 5000;
-    const CONNECTION_DISTANCE = 125;
+    let particles = [];
 
     let currentShape = 0;
+
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    /*
+      Fewer particles on smaller screens.
+      This greatly improves mobile performance.
+    */
+
+    const getParticleCount = () => {
+      if (window.innerWidth < 640) return 42;
+      if (window.innerWidth < 1024) return 55;
+      return 70;
+    };
 
     const shapes = [
       'infinity',
       'circle',
       'organic',
-      'random'
+      'random',
     ];
 
-    // --------------------------------------------------
-    // RESIZE
-    // --------------------------------------------------
+    const MORPH_DURATION = 5000;
+
+    const CONNECTION_DISTANCE = 125;
+
+    /* -----------------------------------------------------
+       RESIZE
+    ----------------------------------------------------- */
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -113,69 +194,87 @@ const ParticleNetwork = () => {
       width = rect.width;
       height = rect.height;
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(
+        window.devicePixelRatio || 1,
+        1.5
+      );
 
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
 
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      /*
+        Using setTransform avoids accumulating scale.
+      */
+
+      ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+      );
+
+      createParticles();
     };
 
-    // --------------------------------------------------
-    // TARGET GENERATION
-    // --------------------------------------------------
 
-    const generateTargets = (shape) => {
+    /* -----------------------------------------------------
+       TARGET GENERATOR
+    ----------------------------------------------------- */
+
+    const generateTargets = (
+      shape,
+      count
+    ) => {
       const targets = [];
 
-      const cx = width / 2;
-      const cy = height / 2;
+      const cx = width * 0.5;
+      const cy = height * 0.5;
 
-      const minDim = Math.min(width, height);
-
-      // ----------------------------------------------
-      // INFINITY / LOOP
-      // ----------------------------------------------
+      const minDim = Math.min(
+        width,
+        height
+      );
 
       if (shape === 'infinity') {
         const scale = minDim * 0.42;
 
-        for (let i = 0; i < NUM_PARTICLES; i++) {
-          const t = (i / NUM_PARTICLES) * Math.PI * 2;
+        for (let i = 0; i < count; i++) {
+          const t =
+            (i / count) *
+            Math.PI *
+            2;
 
           const wobble =
-            Math.sin(t * 3.0) * minDim * 0.008;
-
-          const x =
-            cx +
-            Math.cos(t) *
-              scale *
-              0.95;
-
-          const y =
-            cy +
-            Math.sin(t * 2) *
-              scale *
-              0.38 +
-            wobble;
+            Math.sin(t * 3) *
+            minDim *
+            0.008;
 
           targets.push({
-            x,
-            y
+            x:
+              cx +
+              Math.cos(t) *
+                scale *
+                0.95,
+
+            y:
+              cy +
+              Math.sin(t * 2) *
+                scale *
+                0.38 +
+              wobble,
           });
         }
       }
 
-      // ----------------------------------------------
-      // CIRCLE
-      // ----------------------------------------------
-
       else if (shape === 'circle') {
-        const radius = minDim * 0.34;
+        const radius =
+          minDim * 0.34;
 
-        for (let i = 0; i < NUM_PARTICLES; i++) {
+        for (let i = 0; i < count; i++) {
           const angle =
-            (i / NUM_PARTICLES) *
+            (i / count) *
             Math.PI *
             2;
 
@@ -183,28 +282,28 @@ const ParticleNetwork = () => {
             Math.sin(i * 1.7) * 8 +
             Math.cos(i * 0.8) * 5;
 
+          const finalRadius =
+            radius +
+            radiusVariation;
+
           targets.push({
             x:
               cx +
               Math.cos(angle) *
-                (radius + radiusVariation),
+                finalRadius,
 
             y:
               cy +
               Math.sin(angle) *
-                (radius + radiusVariation)
+                finalRadius,
           });
         }
       }
 
-      // ----------------------------------------------
-      // ORGANIC BLOB
-      // ----------------------------------------------
-
       else if (shape === 'organic') {
-        for (let i = 0; i < NUM_PARTICLES; i++) {
+        for (let i = 0; i < count; i++) {
           const angle =
-            (i / NUM_PARTICLES) *
+            (i / count) *
             Math.PI *
             2;
 
@@ -226,17 +325,13 @@ const ParticleNetwork = () => {
               cy +
               Math.sin(angle) *
                 radius *
-                0.75
+                0.75,
           });
         }
       }
 
-      // ----------------------------------------------
-      // RANDOM / SCATTER
-      // ----------------------------------------------
-
       else {
-        for (let i = 0; i < NUM_PARTICLES; i++) {
+        for (let i = 0; i < count; i++) {
           targets.push({
             x:
               width * 0.15 +
@@ -246,7 +341,7 @@ const ParticleNetwork = () => {
             y:
               height * 0.2 +
               Math.random() *
-                height * 0.6
+                height * 0.6,
           });
         }
       }
@@ -254,9 +349,10 @@ const ParticleNetwork = () => {
       return targets;
     };
 
-    // --------------------------------------------------
-    // PARTICLE
-    // --------------------------------------------------
+
+    /* -----------------------------------------------------
+       PARTICLE
+    ----------------------------------------------------- */
 
     class Particle {
       constructor(x, y) {
@@ -266,11 +362,9 @@ const ParticleNetwork = () => {
         this.targetX = x;
         this.targetY = y;
 
-        this.baseX = x;
-        this.baseY = y;
-
         this.radius =
-          Math.random() * 1.5 + 1;
+          Math.random() * 1.3 +
+          0.8;
 
         this.phase =
           Math.random() *
@@ -278,51 +372,48 @@ const ParticleNetwork = () => {
           2;
 
         this.speed =
-          Math.random() * 0.008 +
-          0.003;
+          Math.random() * 0.006 +
+          0.002;
 
         this.floatAmount =
-          Math.random() * 0.7 +
-          0.3;
+          Math.random() * 0.45 +
+          0.15;
       }
 
       update(time) {
-        // --------------------------------------------
-        // SMOOTH MORPH
-        // --------------------------------------------
-
-        const dx =
-          this.targetX - this.x;
-
-        const dy =
-          this.targetY - this.y;
-
-        this.x += dx * 0.025;
-        this.y += dy * 0.025;
-
-        // --------------------------------------------
-        // ORGANIC FLOATING
-        // --------------------------------------------
-
-        this.phase += this.speed;
+        /*
+          Faster exponential-like interpolation
+          without expensive easing functions.
+        */
 
         this.x +=
-          Math.cos(
-            this.phase + time * 0.00015
-          ) *
-          this.floatAmount;
+          (this.targetX - this.x) *
+          0.035;
 
         this.y +=
-          Math.sin(
-            this.phase * 1.15 +
-            time * 0.00012
-          ) *
-          this.floatAmount;
+          (this.targetY - this.y) *
+          0.035;
+
+        if (!prefersReducedMotion) {
+          this.phase += this.speed;
+
+          this.x +=
+            Math.cos(
+              this.phase +
+              time * 0.00012
+            ) *
+            this.floatAmount;
+
+          this.y +=
+            Math.sin(
+              this.phase * 1.15 +
+              time * 0.0001
+            ) *
+            this.floatAmount;
+        }
       }
 
       draw() {
-        // Small soft glow
-
         ctx.beginPath();
 
         ctx.arc(
@@ -334,46 +425,59 @@ const ParticleNetwork = () => {
         );
 
         ctx.fillStyle =
-          'rgba(255,255,255,0.95)';
+          'rgba(255,255,255,0.9)';
 
         ctx.fill();
       }
     }
 
-    // --------------------------------------------------
-    // INITIALIZE
-    // --------------------------------------------------
 
-    const initialize = () => {
-      resize();
+    /* -----------------------------------------------------
+       CREATE PARTICLES
+    ----------------------------------------------------- */
 
-      particles = [];
+    const createParticles = () => {
+      const count =
+        getParticleCount();
 
       const targets =
         generateTargets(
-          shapes[currentShape]
+          shapes[currentShape],
+          count
         );
 
-      for (
-        let i = 0;
-        i < NUM_PARTICLES;
-        i++
+      /*
+        Keep existing particles where possible
+        instead of destroying/recreating everything.
+      */
+
+      if (
+        particles.length !== count
       ) {
-        const p = new Particle(
-          targets[i].x,
-          targets[i].y
+        particles = targets.map(
+          target =>
+            new Particle(
+              target.x,
+              target.y
+            )
         );
+      } else {
+        particles.forEach(
+          (particle, index) => {
+            particle.targetX =
+              targets[index].x;
 
-        p.targetX = targets[i].x;
-        p.targetY = targets[i].y;
-
-        particles.push(p);
+            particle.targetY =
+              targets[index].y;
+          }
+        );
       }
     };
 
-    // --------------------------------------------------
-    // CHANGE SHAPE
-    // --------------------------------------------------
+
+    /* -----------------------------------------------------
+       CHANGE SHAPE
+    ----------------------------------------------------- */
 
     const changeShape = () => {
       currentShape =
@@ -382,34 +486,50 @@ const ParticleNetwork = () => {
 
       const targets =
         generateTargets(
-          shapes[currentShape]
+          shapes[currentShape],
+          particles.length
         );
 
-      particles.forEach((particle, i) => {
-        particle.targetX =
-          targets[i].x;
+      particles.forEach(
+        (particle, index) => {
+          particle.targetX =
+            targets[index].x;
 
-        particle.targetY =
-          targets[i].y;
-      });
+          particle.targetY =
+            targets[index].y;
+        }
+      );
     };
 
-    // --------------------------------------------------
-    // DRAW CONNECTIONS
-    // --------------------------------------------------
+
+    /* -----------------------------------------------------
+       CONNECTIONS
+    ----------------------------------------------------- */
 
     const drawConnections = () => {
-      for (
-        let i = 0;
-        i < particles.length;
-        i++
-      ) {
+      const count =
+        particles.length;
+
+      const maxDistance =
+        CONNECTION_DISTANCE;
+
+      const maxDistanceSquared =
+        maxDistance *
+        maxDistance;
+
+      /*
+        Squared distance avoids Math.sqrt()
+        for every particle pair.
+      */
+
+      for (let i = 0; i < count; i++) {
+        const p1 = particles[i];
+
         for (
           let j = i + 1;
-          j < particles.length;
+          j < count;
           j++
         ) {
-          const p1 = particles[i];
           const p2 = particles[j];
 
           const dx =
@@ -418,20 +538,23 @@ const ParticleNetwork = () => {
           const dy =
             p1.y - p2.y;
 
-          const distance =
-            Math.sqrt(
-              dx * dx +
-              dy * dy
-            );
+          const distanceSquared =
+            dx * dx +
+            dy * dy;
 
           if (
-            distance <
-            CONNECTION_DISTANCE
+            distanceSquared <
+            maxDistanceSquared
           ) {
+            const distance =
+              Math.sqrt(
+                distanceSquared
+              );
+
             const opacity =
               1 -
               distance /
-                CONNECTION_DISTANCE;
+                maxDistance;
 
             ctx.beginPath();
 
@@ -447,11 +570,10 @@ const ParticleNetwork = () => {
 
             ctx.strokeStyle =
               `rgba(190,210,255,${
-                opacity * 0.32
+                opacity * 0.28
               })`;
 
-            ctx.lineWidth =
-              0.55;
+            ctx.lineWidth = 0.5;
 
             ctx.stroke();
           }
@@ -459,9 +581,10 @@ const ParticleNetwork = () => {
       }
     };
 
-    // --------------------------------------------------
-    // ANIMATION LOOP
-    // --------------------------------------------------
+
+    /* -----------------------------------------------------
+       ANIMATION
+    ----------------------------------------------------- */
 
     const animate = (time) => {
       ctx.clearRect(
@@ -471,23 +594,23 @@ const ParticleNetwork = () => {
         height
       );
 
-      // Update particles
-
-      particles.forEach(
-        particle =>
-          particle.update(time)
-      );
-
-      // Connections first
+      for (
+        let i = 0;
+        i < particles.length;
+        i++
+      ) {
+        particles[i].update(time);
+      }
 
       drawConnections();
 
-      // Nodes
-
-      particles.forEach(
-        particle =>
-          particle.draw()
-      );
+      for (
+        let i = 0;
+        i < particles.length;
+        i++
+      ) {
+        particles[i].draw();
+      }
 
       animationFrameId =
         requestAnimationFrame(
@@ -495,31 +618,41 @@ const ParticleNetwork = () => {
         );
     };
 
-    // --------------------------------------------------
-    // START
-    // --------------------------------------------------
 
-    initialize();
+    /* -----------------------------------------------------
+       INITIALIZE
+    ----------------------------------------------------- */
+
+    resize();
 
     window.addEventListener(
       'resize',
-      resize
+      resize,
+      { passive: true }
     );
 
-    shapeInterval =
-      setInterval(
-        changeShape,
-        MORPH_DURATION
-      );
+    /*
+      Don't animate shape changes when
+      reduced motion is requested.
+    */
+
+    if (!prefersReducedMotion) {
+      shapeIntervalId =
+        window.setInterval(
+          changeShape,
+          MORPH_DURATION
+        );
+    }
 
     animationFrameId =
       requestAnimationFrame(
         animate
       );
 
-    // --------------------------------------------------
-    // CLEANUP
-    // --------------------------------------------------
+
+    /* -----------------------------------------------------
+       CLEANUP
+    ----------------------------------------------------- */
 
     return () => {
       window.removeEventListener(
@@ -527,19 +660,19 @@ const ParticleNetwork = () => {
         resize
       );
 
-      clearInterval(
-        shapeInterval
+      window.clearInterval(
+        shapeIntervalId
       );
 
-      cancelAnimationFrame(
+      window.cancelAnimationFrame(
         animationFrameId
       );
     };
   }, []);
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
-      <div className="absolute inset-0 rounded-full bg-white/[0.025] blur-3xl pointer-events-none" />
+    <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
+      <div className="absolute inset-0 rounded-full bg-white/[0.025] blur-3xl" />
 
       <canvas
         ref={canvasRef}
@@ -547,471 +680,809 @@ const ParticleNetwork = () => {
       />
     </div>
   );
-};
+});
 
-const ProjectCard = ({ site, index, onClick }) => {
-  return (
-    <div 
-      className={`group cursor-pointer border border-[#1f2937] rounded-2xl p-8 bg-[#0a0a0a]/50 hover:bg-[#111827] backdrop-blur-sm h-full flex flex-col justify-between transition-all duration-500 hover:-translate-y-1`}
-      style={{ animationDelay: `${(index % 2) * 100}ms` }}
-      onClick={() => onClick(site)}
-    >
-      <div>
-        <div className="flex justify-between items-start mb-6">
-          <h3 className="text-3xl font-display font-bold text-[#d1d5db] group-hover:text-[#f3f4f6] transition-colors">{site.name}</h3>
-          <div className="w-10 h-10 rounded-full border border-[#374151] flex items-center justify-center group-hover:border-[#6b7280] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300">
-            <ArrowUpRight size={18} className="text-[#6b7280] group-hover:text-[#9ca3af]" />
-          </div>
-        </div>
-        <p className="text-[#6b7280] font-light leading-relaxed">{site.shortDesc}</p>
-      </div>
-      
-      {site.features && (
-        <div className="mt-8 flex flex-wrap gap-2">
-          {site.features.map(f => (
-            <span key={f} className="text-[10px] font-display uppercase tracking-wider px-2 py-1 rounded border border-[#374151] bg-[#111827] text-[#6b7280]">
-              {f}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
-const DetailsModal = ({ site, onClose }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const scrollRef = useRef(null);
+/* =========================================================
+   PROJECT CARD
+========================================================= */
 
-  useEffect(() => {
-    if (site) {
-      setIsVisible(true);
-      document.body.style.overflow = 'hidden';
-    } else {
-      setIsVisible(false);
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [site]);
+const ProjectCard = memo(
+  ({ site, index, onClick }) => {
+    const handleClick = useCallback(() => {
+      onClick(site);
+    }, [onClick, site]);
 
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el || !site) return;
+    return (
+      <article
+        className="
+          group
+          cursor-pointer
+          border
+          border-[#1f2937]
+          rounded-2xl
+          p-8
+          bg-[#0a0a0a]/50
+          hover:bg-[#111827]
+          backdrop-blur-sm
+          h-full
+          flex
+          flex-col
+          justify-between
+          transition-transform
+          transition-colors
+          duration-500
+          hover:-translate-y-1
+          will-change-transform
+        "
+        style={{
+          animationDelay:
+            `${(index % 2) * 100}ms`,
+        }}
+        onClick={handleClick}
+      >
 
-    // Reset scroll position to top when opening a new site
-    el.scrollTop = 0;
-    
-    // Respect accessibility settings
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-        el.style.WebkitOverflowScrolling = 'touch';
-        return;
-    }
+        <div>
+          <div className="flex justify-between items-start mb-6">
 
-    let targetY = el.scrollTop;
-    let currentY = el.scrollTop;
-    let rafId = null;
+            <h3 className="
+              text-3xl
+              font-display
+              font-bold
+              text-[#d1d5db]
+              group-hover:text-[#f3f4f6]
+              transition-colors
+            ">
+              {site.name}
+            </h3>
 
-    const lerp = (start, end, factor) => start + (end - start) * factor;
-
-    const render = () => {
-      // Factor 0.12 provides an ultra-smooth, buttery glide (lowered from 0.2)
-      currentY = lerp(currentY, targetY, 0.12); 
-      
-      // Stop loop if close enough to target
-      if (Math.abs(targetY - currentY) < 0.5) {
-        currentY = targetY;
-        el.scrollTop = currentY;
-        rafId = null;
-        return;
-      }
-      
-      el.scrollTop = currentY;
-      rafId = requestAnimationFrame(render);
-    };
-
-    const onWheel = (e) => {
-      // Allow standard horizontal scrolling to function normally
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-
-      e.preventDefault();
-      const maxScroll = el.scrollHeight - el.clientHeight;
-      
-      // Calculate target position with boundaries
-      targetY = Math.max(0, Math.min(maxScroll, targetY + e.deltaY));
-
-      if (!rafId) {
-        currentY = el.scrollTop; 
-        rafId = requestAnimationFrame(render);
-      }
-    };
-
-    const onScroll = () => {
-      // Sync coordinates immediately if the user manually drags the scrollbar or uses native touch swipe
-      if (!rafId) {
-        targetY = el.scrollTop;
-        currentY = el.scrollTop;
-      }
-    };
-
-    // Enhance native mobile feel
-    el.style.WebkitOverflowScrolling = 'touch';
-    el.style.overscrollBehaviorY = 'contain';
-
-    // passive: false is required so we can call e.preventDefault() on wheel ticks
-    el.addEventListener('wheel', onWheel, { passive: false });
-    el.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      el.removeEventListener('wheel', onWheel);
-      el.removeEventListener('scroll', onScroll);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
-  }, [site]);
-
-  if (!site && !isVisible) return null;
-
-  return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 lg:p-12 transition-all duration-500 ${site ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-      
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-[#000000]/90 backdrop-blur-md cursor-pointer transition-opacity duration-500"
-        onClick={onClose}
-      />
-      
-      {/* Modal Content */}
-      <div className={`relative w-full max-w-5xl max-h-full bg-[#0a0a0a] border border-[#1f2937] rounded-2xl md:rounded-[2rem] flex flex-col transition-all duration-500 shadow-2xl ${site ? 'scale-100 translate-y-0' : 'scale-95 translate-y-8'}`}>
-        
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 md:p-8 border-b border-[#1f2937] bg-[#050505]/80 backdrop-blur-sm sticky top-0 z-10 rounded-t-2xl md:rounded-t-[2rem]">
-          <h3 className="text-2xl md:text-4xl font-display font-bold text-[#d1d5db]">{site?.name}</h3>
-          <div className="flex items-center gap-4">
-            <a 
-              href={site?.url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hidden sm:flex items-center justify-center px-6 py-3 rounded-full border border-[#374151] bg-[#111827] text-[#9ca3af] font-display font-semibold text-sm tracking-wider uppercase hover:bg-[#1f2937] hover:text-[#d1d5db] transition-colors"
-            >
-              Go to Website <ArrowUpRight size={16} className="ml-2" />
-            </a>
-            <button 
-              onClick={onClose}
-              className="w-12 h-12 rounded-full border border-[#374151] flex items-center justify-center text-[#6b7280] hover:bg-[#1f2937] hover:text-[#d1d5db] transition-colors"
-            >
-              <X size={20} />
-            </button>
-          </div>
-        </div>
-
-        {/* Body */}
-        <div 
-          ref={scrollRef}
-          className="p-6 md:p-10 lg:p-16 overflow-y-auto custom-scrollbar"
-        >
-          
-          <a 
-            href={site?.url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex sm:hidden w-full mb-12 items-center justify-center px-6 py-3 rounded-full border border-[#374151] bg-[#111827] text-[#9ca3af] font-display font-semibold text-sm tracking-wider uppercase hover:bg-[#1f2937] hover:text-[#d1d5db] transition-colors"
-          >
-            Go to Website <ArrowUpRight size={16} className="ml-2" />
-          </a>
-
-          {/* About Section */}
-          <div className="mb-16">
-            <h4 className="text-sm font-display text-[#4b5563] uppercase tracking-widest mb-6 flex items-center gap-4">
-              <span>About {site?.name}</span>
-              <div className="h-[1px] flex-grow bg-[#1f2937]"></div>
-            </h4>
-            <div className="text-lg md:text-xl font-light leading-relaxed text-[#9ca3af] whitespace-pre-wrap">
-              {site?.description}
+            <div className="
+              w-10
+              h-10
+              shrink-0
+              rounded-full
+              border
+              border-[#374151]
+              flex
+              items-center
+              justify-center
+              group-hover:border-[#6b7280]
+              group-hover:translate-x-1
+              group-hover:-translate-y-1
+              transition-all
+              duration-300
+            ">
+              <ArrowUpRight
+                size={18}
+                className="
+                  text-[#6b7280]
+                  group-hover:text-[#9ca3af]
+                "
+              />
             </div>
+
           </div>
 
-          {/* Shortcuts Section */}
-          {site?.shortcuts && (
-            <div className="mb-16">
-              <h4 className="text-sm font-display text-[#4b5563] uppercase tracking-widest mb-6 flex items-center gap-4">
-                <span>Keyboard Shortcuts</span>
-                <div className="h-[1px] flex-grow bg-[#1f2937]"></div>
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {site.shortcuts.map((sc, i) => (
-                  <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-[#0a0a0a] border border-[#1f2937] hover:bg-[#111827] transition-colors">
-                    <span className="font-display font-semibold tracking-wide text-[#d1d5db] mb-1 sm:mb-0">{sc.key}</span>
-                    <span className="text-[#6b7280] font-light text-sm text-left sm:text-right">{sc.action}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Manual Section */}
-          {site?.manual && (
-            <div>
-              <h4 className="text-sm font-display text-[#4b5563] uppercase tracking-widest mb-6 flex items-center gap-4">
-                <span>User Manual Topics</span>
-                <div className="h-[1px] flex-grow bg-[#1f2937]"></div>
-              </h4>
-              <div className="bg-[#0a0a0a] rounded-2xl border border-[#1f2937] p-2">
-                {site.manual.map((topic, i) => (
-                  <div key={i} className="flex items-center gap-4 p-4 border-b border-[#1f2937] last:border-0 group">
-                    <span className="text-xs font-display text-[#374151] group-hover:text-[#6b7280] transition-colors">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span className="font-light text-[#9ca3af]">{topic}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
+          <p className="
+            text-[#6b7280]
+            font-light
+            leading-relaxed
+          ">
+            {site.shortDesc}
+          </p>
         </div>
-      </div>
-    </div>
-  );
-};
 
-export default function App() {
-  const [selectedSite, setSelectedSite] = useState(null);
-  const [currentPage, setCurrentPage] = useState('home');
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Handle escape key for modal
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && selectedSite) {
-        setSelectedSite(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedSite]);
+        {site.features?.length > 0 && (
+          <div className="mt-8 flex flex-wrap gap-2">
 
-  // Handle ultra-smooth page transitions
-  const navigateTo = (page) => {
-    if (page === currentPage) return;
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentPage(page);
-      setIsTransitioning(false);
-    }, 400); // Wait for fade out before swapping content
-  };
+            {site.features.map(
+              feature => (
+                <span
+                  key={feature}
+                  className="
+                    text-[10px]
+                    font-display
+                    uppercase
+                    tracking-wider
+                    px-2
+                    py-1
+                    rounded
+                    border
+                    border-[#374151]
+                    bg-[#111827]
+                    text-[#6b7280]
+                  "
+                >
+                  {feature}
+                </span>
+              )
+            )}
 
-  return (
-    <div className="min-h-screen bg-[#000000] text-[#9ca3af] font-sans selection:bg-[#374151] selection:text-[#d1d5db] overflow-hidden">
-      
-      {/* Global Styles injected safely via style tag in React */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap');
-        
-        * { 
-          box-sizing: border-box; 
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-          text-rendering: optimizeLegibility;
-        }
-        
-        .font-sans { font-family: 'Inter', sans-serif; }
-        .font-display { font-family: 'Syne', sans-serif; }
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #030303; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #374151; }
-
-        @keyframes text-gradient-loop {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        
-        .colorful-gradient-text {
-          background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc, #e879f9, #38bdf8);
-          background-size: 200% auto;
-          color: #000;
-          background-clip: text;
-          text-fill-color: transparent;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: text-gradient-loop 6s linear infinite, minimal-float 8s ease-in-out infinite;
-          will-change: background-position, transform;
-        }
-
-        /* GPU Hardware Acceleration for Canvases */
-        .hardware-accelerated {
-          transform: translateZ(0);
-          will-change: transform, opacity;
-          backface-visibility: hidden;
-        }
-
-        .bg-grid {
-          position: fixed;
-          top: 0; left: 0; width: 100vw; height: 100vh;
-          pointer-events: none; z-index: 0;
-          display: flex; justify-content: space-evenly;
-          opacity: 0.15;
-        }
-        
-        .bg-grid-line {
-          width: 1px; height: 100%;
-          background: linear-gradient(to bottom, transparent, #111111, transparent);
-        }
-
-        /* Ultra-smooth Reveal Animations */
-        .reveal-up {
-          animation: revealUpAnim 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          opacity: 0;
-          transform: translateY(30px);
-          will-change: transform, opacity;
-        }
-
-        @keyframes revealUpAnim {
-          from {
-            opacity: 0;
-            transform: translateY(40px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        /* Page Transition Animations */
-        .page-fade-enter {
-          animation: pageFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .page-fade-exit {
-          animation: pageFadeOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes pageFadeIn {
-          from { opacity: 0; transform: translateY(15px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes pageFadeOut {
-          from { opacity: 1; transform: translateY(0); }
-          to { opacity: 0; transform: translateY(-15px); }
-        }
-
-        @keyframes shimmer-sweep {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        
-        .premium-shine {
-          background: linear-gradient(
-            110deg, 
-            #6b7280 20%, 
-            #4b5563 40%, 
-            #ffffff 50%, 
-            #4b5563 60%, 
-            #6b7280 80%
-          );
-          background-size: 200% auto;
-          color: transparent;
-          -webkit-background-clip: text;
-          background-clip: text;
-          animation: shimmer-sweep 3.5s linear infinite;
-        }
-
-        .delay-100 { animation-delay: 100ms; }
-        .delay-200 { animation-delay: 200ms; }
-        .delay-300 { animation-delay: 300ms; }
-      `}} />
-
-      {/* Global Background Grid Lines */}
-      <div className="bg-grid">
-        <div className="bg-grid-line"></div>
-        <div className="bg-grid-line hidden md:block"></div>
-        <div className="bg-grid-line"></div>
-        <div className="bg-grid-line hidden md:block"></div>
-        <div className="bg-grid-line"></div>
-      </div>
-
-      <main className={`relative z-10 container mx-auto px-6 md:px-12 lg:px-24 transition-opacity duration-500 ${isTransitioning ? 'page-fade-exit' : 'page-fade-enter'}`}>
-        
-        {currentPage === 'home' ? (
-          <section className="min-h-screen flex flex-col lg:flex-row items-center justify-between relative pt-20 pb-12 gap-12">
-            
-            {/* Left Column: Text & Intro */}
-            <div className="flex-1 w-full max-w-2xl reveal-up z-20">
-              <div className="mb-6 flex items-center gap-4">
-                <div className="h-[1px] w-12 bg-[#374151]"></div>
-                <span className="font-display tracking-widest text-xs uppercase text-[#6b7280]">Creator: Sandipan Paul</span>
-              </div>
-              
-              <h1 className="text-7xl md:text-8xl lg:text-[9rem] font-display font-bold leading-[0.9] tracking-tighter mb-8 colorful-gradient-text">
-                My<br/>Web.
-              </h1>
-              
-              <p className="text-lg md:text-xl text-[#6b7280] font-light leading-relaxed mb-12 border-l border-[#374151] pl-6">
-                A central collection of my websites and digital projects. 
-                It allows visitors to discover my different projects, understand what each website is made for, and directly visit the websites.
-              </p>
-
-              <button 
-                onClick={() => navigateTo('collection')}
-                className="flex items-center gap-3 hover:text-[#d1d5db] text-[#6b7280] transition-colors duration-500 ease-out cursor-pointer border-none bg-transparent group"
-              >
-                <div className="w-8 h-8 rounded-full border border-[#1f2937] flex items-center justify-center group-hover:border-[#4b5563] group-hover:bg-[#111] transition-all duration-500 ease-out">
-                  <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform duration-500 ease-out" />
-                </div>
-                <span className="text-sm font-display uppercase tracking-widest premium-shine group-hover:brightness-125 transition-all duration-500">View Collection</span>
-              </button>
-            </div>
-
-            {/* Right Column: Shape-shifting Node Diagram */}
-            <div className="flex-1 w-full h-[50vh] lg:h-screen lg:absolute lg:right-0 lg:top-0 lg:w-1/2 reveal-up delay-200 pointer-events-none lg:pointer-events-auto hardware-accelerated">
-              <ParticleNetwork />
-            </div>
-
-          </section>
-        ) : (
-          <section className="py-24 min-h-screen relative z-20">
-            
-            {/* Back to Home Button */}
-            <button 
-              onClick={() => navigateTo('home')}
-              className="mb-16 flex items-center gap-3 hover:text-[#d1d5db] text-[#6b7280] transition-colors duration-500 ease-out cursor-pointer border-none bg-transparent group reveal-up"
-            >
-              <div className="w-8 h-8 rounded-full border border-[#1f2937] flex items-center justify-center group-hover:border-[#4b5563] group-hover:bg-[#111] transition-all duration-500 ease-out">
-                <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform duration-500 ease-out" />
-              </div>
-              <span className="text-sm font-display uppercase tracking-widest">Home</span>
-            </button>
-
-            <div className="mb-16 reveal-up delay-100">
-              <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight mb-4 flex items-baseline gap-4 text-[#d1d5db]">
-                Collection <span className="text-[#374151] text-2xl font-light">04</span>
-              </h2>
-              <div className="h-[1px] w-full bg-[#1f2937]"></div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-              {websitesData.map((site, index) => (
-                <ProjectCard 
-                  key={site.id} 
-                  site={site} 
-                  index={index} 
-                  onClick={(s) => setSelectedSite(s)} 
-                />
-              ))}
-            </div>
-          </section>
+          </div>
         )}
+
+      </article>
+    );
+  }
+);
+
+
+/* =========================================================
+   DETAILS MODAL
+========================================================= */
+
+const DetailsModal = memo(
+  ({ site, onClose }) => {
+    const [isVisible, setIsVisible] =
+      useState(false);
+
+    const scrollRef =
+      useRef(null);
+
+    /* -----------------------------------------------------
+       OPEN / CLOSE
+    ----------------------------------------------------- */
+
+    useEffect(() => {
+      if (site) {
+        requestAnimationFrame(() => {
+          setIsVisible(true);
+        });
+
+        document.body.style.overflow =
+          'hidden';
+      } else {
+        setIsVisible(false);
+
+        document.body.style.overflow =
+          '';
+      }
+
+      return () => {
+        document.body.style.overflow =
+          '';
+      };
+    }, [site]);
+
+
+    /* -----------------------------------------------------
+       ESCAPE KEY
+    ----------------------------------------------------- */
+
+    useEffect(() => {
+      if (!site) return;
+
+      const handleKeyDown = e => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+
+      window.addEventListener(
+        'keydown',
+        handleKeyDown
+      );
+
+      return () => {
+        window.removeEventListener(
+          'keydown',
+          handleKeyDown
+        );
+      };
+    }, [site, onClose]);
+
+
+    /* -----------------------------------------------------
+       RESET SCROLL
+    ----------------------------------------------------- */
+
+    useEffect(() => {
+      if (!site || !scrollRef.current) {
+        return;
+      }
+
+      scrollRef.current.scrollTop = 0;
+    }, [site]);
+
+
+    if (!site && !isVisible) {
+      return null;
+    }
+
+
+    return (
+      <div
+        className={`
+          fixed
+          inset-0
+          z-50
+          flex
+          items-center
+          justify-center
+          p-3
+          sm:p-4
+          md:p-6
+          lg:p-12
+          transition-opacity
+          duration-300
+          ${site
+            ? 'opacity-100'
+            : 'opacity-0 pointer-events-none'
+          }
+        `}
+      >
+
+        {/* BACKDROP */}
+
+        <div
+          className="
+            absolute
+            inset-0
+            bg-black/90
+            backdrop-blur-md
+          "
+          onClick={onClose}
+        />
+
+
+        {/* MODAL */}
+
+        <div
+          className={`
+            relative
+            w-full
+            max-w-5xl
+            h-[94vh]
+            md:h-auto
+            md:max-h-[90vh]
+            bg-[#0a0a0a]
+            border
+            border-[#1f2937]
+            rounded-2xl
+            md:rounded-[2rem]
+            overflow-hidden
+            flex
+            flex-col
+            shadow-2xl
+            transition-transform
+            duration-300
+            ease-out
+            ${
+              site
+                ? 'scale-100 translate-y-0'
+                : 'scale-[0.98] translate-y-3'
+            }
+          `}
+        >
+
+          {/* HEADER */}
+
+          <header
+            className="
+              shrink-0
+              flex
+              items-center
+              justify-between
+              gap-4
+              p-5
+              md:p-8
+              border-b
+              border-[#1f2937]
+              bg-[#050505]/95
+              backdrop-blur-xl
+            "
+          >
+
+            <h3 className="
+              text-2xl
+              md:text-4xl
+              font-display
+              font-bold
+              text-[#d1d5db]
+              truncate
+            ">
+              {site?.name}
+            </h3>
+
+
+            <div className="
+              flex
+              items-center
+              gap-3
+              shrink-0
+            ">
+
+              <a
+                href={site?.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  hidden
+                  sm:flex
+                  items-center
+                  justify-center
+                  px-5
+                  py-3
+                  rounded-full
+                  border
+                  border-[#374151]
+                  bg-[#111827]
+                  text-[#9ca3af]
+                  font-display
+                  font-semibold
+                  text-sm
+                  tracking-wider
+                  uppercase
+                  hover:bg-[#1f2937]
+                  hover:text-[#d1d5db]
+                  transition-colors
+                "
+                onClick={e =>
+                  e.stopPropagation()
+                }
+              >
+                Go to Website
+
+                <ArrowUpRight
+                  size={16}
+                  className="ml-2"
+                />
+              </a>
+
+
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="
+                  w-11
+                  h-11
+                  rounded-full
+                  border
+                  border-[#374151]
+                  flex
+                  items-center
+                  justify-center
+                  hover:bg-[#1f2937]
+                  transition-colors
+                "
+              >
+                <X
+                  size={20}
+                  className="text-[#9ca3af]"
+                />
+              </button>
+
+            </div>
+          </header>
+
+
+          {/* CONTENT */}
+
+          <main
+            ref={scrollRef}
+            className="
+              flex-1
+              min-h-0
+              overflow-y-auto
+              overscroll-contain
+              touch-pan-y
+              scroll-smooth
+              [scrollbar-width:thin]
+              [scrollbar-color:#374151_transparent]
+            "
+          >
+
+            <div className="
+              p-6
+              md:p-10
+              lg:p-12
+            ">
+
+              {/* DESCRIPTION */}
+
+              <div className="
+                max-w-3xl
+                text-[#9ca3af]
+                leading-8
+                whitespace-pre-line
+                font-light
+              ">
+                {site?.description}
+              </div>
+
+
+              {/* FEATURES */}
+
+              {site?.features?.length > 0 && (
+                <section className="mt-10">
+
+                  <h4 className="
+                    text-xs
+                    uppercase
+                    tracking-[0.25em]
+                    text-[#6b7280]
+                    mb-4
+                  ">
+                    Features
+                  </h4>
+
+                  <div className="
+                    flex
+                    flex-wrap
+                    gap-2
+                  ">
+
+                    {site.features.map(
+                      feature => (
+                        <span
+                          key={feature}
+                          className="
+                            px-3
+                            py-2
+                            rounded-lg
+                            border
+                            border-[#374151]
+                            bg-[#111827]
+                            text-xs
+                            uppercase
+                            tracking-wider
+                            text-[#9ca3af]
+                          "
+                        >
+                          {feature}
+                        </span>
+                      )
+                    )}
+
+                  </div>
+
+                </section>
+              )}
+
+
+              {/* SHORTCUTS */}
+
+              {site?.shortcuts?.length > 0 && (
+                <section className="mt-12">
+
+                  <h4 className="
+                    text-xs
+                    uppercase
+                    tracking-[0.25em]
+                    text-[#6b7280]
+                    mb-5
+                  ">
+                    Shortcuts
+                  </h4>
+
+                  <div className="
+                    border
+                    border-[#1f2937]
+                    rounded-xl
+                    overflow-hidden
+                  ">
+
+                    {site.shortcuts.map(
+                      shortcut => (
+                        <div
+                          key={shortcut.key}
+                          className="
+                            flex
+                            flex-col
+                            sm:flex-row
+                            sm:items-center
+                            justify-between
+                            gap-3
+                            px-4
+                            py-4
+                            border-b
+                            border-[#1f2937]
+                            last:border-b-0
+                          "
+                        >
+
+                          <kbd className="
+                            w-fit
+                            px-2
+                            py-1
+                            rounded
+                            bg-[#111827]
+                            border
+                            border-[#374151]
+                            text-xs
+                            text-[#d1d5db]
+                            font-mono
+                          ">
+                            {shortcut.key}
+                          </kbd>
+
+                          <span className="
+                            text-sm
+                            text-[#6b7280]
+                            sm:text-right
+                          ">
+                            {shortcut.action}
+                          </span>
+
+                        </div>
+                      )
+                    )}
+
+                  </div>
+
+                </section>
+              )}
+
+
+              {/* MANUAL */}
+
+              {site?.manual?.length > 0 && (
+                <section className="mt-12">
+
+                  <h4 className="
+                    text-xs
+                    uppercase
+                    tracking-[0.25em]
+                    text-[#6b7280]
+                    mb-5
+                  ">
+                    User Manual
+                  </h4>
+
+                  <div className="
+                    grid
+                    sm:grid-cols-2
+                    gap-3
+                  ">
+
+                    {site.manual.map(
+                      (item, index) => (
+                        <div
+                          key={`${item}-${index}`}
+                          className="
+                            p-4
+                            rounded-xl
+                            border
+                            border-[#1f2937]
+                            bg-[#0d0d0d]
+                            text-sm
+                            text-[#9ca3af]
+                          "
+                        >
+                          <span className="
+                            text-[#4b5563]
+                            mr-3
+                            font-mono
+                          ">
+                            {String(
+                              index + 1
+                            ).padStart(2, '0')}
+                          </span>
+
+                          {item}
+                        </div>
+                      )
+                    )}
+
+                  </div>
+
+                </section>
+              )}
+
+
+              {/* MOBILE WEBSITE BUTTON */}
+
+              <div className="
+                sm:hidden
+                mt-10
+              ">
+
+                <a
+                  href={site?.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="
+                    w-full
+                    flex
+                    items-center
+                    justify-center
+                    px-5
+                    py-4
+                    rounded-full
+                    border
+                    border-[#374151]
+                    bg-[#111827]
+                    text-[#d1d5db]
+                    font-semibold
+                    text-sm
+                    uppercase
+                    tracking-wider
+                  "
+                >
+                  Go to Website
+
+                  <ArrowUpRight
+                    size={16}
+                    className="ml-2"
+                  />
+                </a>
+
+              </div>
+
+            </div>
+          </main>
+
+        </div>
+      </div>
+    );
+  }
+);
+
+
+/* =========================================================
+   MAIN APP
+========================================================= */
+
+const App = () => {
+  const [selectedSite, setSelectedSite] =
+    useState(null);
+
+  const openProject = useCallback(
+    site => {
+      setSelectedSite(site);
+    },
+    []
+  );
+
+  const closeProject = useCallback(
+    () => {
+      setSelectedSite(null);
+    },
+    []
+  );
+
+  return (
+    <div className="
+      relative
+      min-h-screen
+      bg-[#050505]
+      text-white
+      overflow-x-hidden
+    ">
+
+      {/* =================================================
+          BACKGROUND
+      ================================================= */}
+
+      <div className="
+        fixed
+        inset-0
+        pointer-events-none
+        overflow-hidden
+      ">
+
+        <ParticleNetwork />
+
+      </div>
+
+
+      {/* =================================================
+          MAIN CONTENT
+      ================================================= */}
+
+      <main className="
+        relative
+        z-10
+        w-full
+      ">
+
+        {/* HERO */}
+
+        <section className="
+          min-h-[70vh]
+          flex
+          items-center
+          justify-center
+          px-6
+          py-24
+        ">
+
+          <div className="
+            max-w-5xl
+            text-center
+          ">
+
+            <p className="
+              mb-5
+              text-xs
+              uppercase
+              tracking-[0.4em]
+              text-[#6b7280]
+            ">
+              Selected Works
+            </p>
+
+            <h1 className="
+              text-5xl
+              sm:text-6xl
+              md:text-8xl
+              font-display
+              font-bold
+              tracking-tight
+              text-[#e5e7eb]
+            ">
+              Digital
+              <span className="text-[#6b7280]">
+                {' '}Experiences
+              </span>
+            </h1>
+
+            <p className="
+              max-w-2xl
+              mx-auto
+              mt-7
+              text-[#6b7280]
+              leading-7
+              font-light
+            ">
+              A collection of interactive websites,
+              creative experiments and digital
+              experiences.
+            </p>
+
+          </div>
+
+        </section>
+
+
+        {/* PROJECT GRID */}
+
+        <section className="
+          max-w-7xl
+          mx-auto
+          px-6
+          pb-32
+        ">
+
+          <div className="
+            grid
+            grid-cols-1
+            md:grid-cols-2
+            gap-5
+          ">
+
+            {websitesData.map(
+              (site, index) => (
+                <ProjectCard
+                  key={site.id}
+                  site={site}
+                  index={index}
+                  onClick={openProject}
+                />
+              )
+            )}
+
+          </div>
+
+        </section>
 
       </main>
 
-      {/* Dynamic Details Modal */}
-      <DetailsModal 
-        site={selectedSite} 
-        onClose={() => setSelectedSite(null)} 
+
+      {/* =================================================
+          MODAL
+      ================================================= */}
+
+      <DetailsModal
+        site={selectedSite}
+        onClose={closeProject}
       />
 
     </div>
   );
-}
+};
+
+
+export default App;
