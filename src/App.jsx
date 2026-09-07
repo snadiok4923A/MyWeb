@@ -598,15 +598,17 @@ const DetailsModal = ({ site, onClose }) => {
     const el = scrollRef.current;
     if (!el || !site) return;
 
-    // Reset scroll position when opening a new site.
+    // Start every manual at the top.
     el.scrollTop = 0;
 
-    // Keep scrolling native and compositor-friendly.
-    // The old custom wheel + requestAnimationFrame loop
-    // intercepted every wheel event and caused visible lag.
+    // Use the browser's native scrolling pipeline for maximum responsiveness.
     el.style.WebkitOverflowScrolling = 'touch';
-    el.style.overscrollBehaviorY = 'contain';
-    el.style.scrollBehavior = 'smooth';
+    el.style.overscrollBehavior = 'contain';
+    el.style.scrollBehavior = 'auto';
+
+    // Keep the scrolling surface isolated from the rest of the page.
+    el.style.contain = 'layout paint';
+    el.style.willChange = 'scroll-position';
   }, [site]);
 
   if (!site && !isVisible) return null;
@@ -647,7 +649,7 @@ const DetailsModal = ({ site, onClose }) => {
         {/* Body */}
         <div 
           ref={scrollRef}
-          className="p-6 md:p-10 lg:p-16 overflow-y-auto custom-scrollbar scroll-smooth"
+          className="p-6 md:p-10 lg:p-16 overflow-y-auto custom-scrollbar manual-scroll-container"
         >
           
           <a 
@@ -761,6 +763,14 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar-track { background: #030303; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #374151; }
+        .manual-scroll-container {
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+          scroll-behavior: auto;
+          contain: layout paint;
+          scrollbar-gutter: stable;
+        }
+
 
         @keyframes text-gradient-loop {
           0% { background-position: 0% 50%; }
